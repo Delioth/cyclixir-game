@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "allowSyntheticDefaultImports": false,
+    "baseUrl": "./",
+    "paths": {
+      "@src/*": ["./*"],
+      "@type/*": ["./js/types/*"],
+      "@game/*": ["./js/game/*"],
+      "@enum/*": ["./js/enums/*"]
+    }
+  },
+  "exclude": ["node_modules"]
+}

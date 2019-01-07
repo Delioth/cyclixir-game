@@ -11,7 +11,7 @@
 //
 // If you no longer want to use a dependency, remember
 // to also remove its path from "config.paths.watched".
-import "phoenix_html"
+import 'phoenix_html'
 
 // Import local files
 //
@@ -20,18 +20,29 @@ import "phoenix_html"
 
 // import socket from "./socket"
 import app from './cycle/main'
-import {run} from "@cycle/run"
-import {makeDOMDriver} from "@cycle/dom"
+import { run, setup } from '@cycle/run'
+import { makeDOMDriver } from '@cycle/dom'
 import makeSockDriver from './cycle/driver/phoenix-socket-cycle-driver'
+import { timeDriver } from '@cycle/time'
+import makePixiDriver from './cycle/driver/pixijs-cycle-driver'
+import { rerunner, restartable } from 'cycle-restart'
 
-function main(sources) {
-  return app(sources)
-}
-console.log("hello, world")
+import path from 'path'
 
-let socketDriver = makeSockDriver("/socket", "numbers:numbers", "1")
+let socketDriver = makeSockDriver('/socket', 'numbers:numbers', '1')
 
-run(main, {
-  DOM: makeDOMDriver('#newApp'),
-  sock: socketDriver
+let pixiDriver = makePixiDriver()
+
+const makeDrivers = () => ({
+  DOM: restartable(makeDOMDriver('#newApp'), false),
+  sock: restartable(socketDriver),
+  pixi: pixiDriver,
+  time: restartable(timeDriver)
 })
+
+const rerun = rerunner(setup, makeDrivers)
+rerun(app)
+
+if (module.hot) {
+  module.hot.decline()
+}

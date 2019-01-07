@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "es2015",
+    "module": "es2015",
+    "jsx": "preserve",
+    "moduleResolution": "node",
+    "baseUrl": "./",
+    "paths": {
+      "@src/*": ["./js/*"],
+      "@type/*": ["./js/types/*"],
+      "@game/*": ["./js/game/*"],
+      "@enum/*": ["./js/enums/*"]
+    },
+    "outDir": "ts-build",
+    "allowJs": true
+  },
+  "exclude": ["node_modules", "priv", "ts-build"]
+}
