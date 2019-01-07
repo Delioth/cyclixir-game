@@ -8,6 +8,8 @@ There's an in-progress Entity-Component-System frame set up, where systems becom
 
 In short, the current game is less than complete - it's completely unplayable, the engine isn't even close to done.
 
+Notably, the game's core mechanics are inspired by Square Enix's Valkyrie Profile, whose combat system is beautiful; and a whole host of games which provide classes and class changes - class changing is a beautiful moment and one of my primary goals is to build that system up and flesh it out to the maximum.
+
 # Running the project
 
 To start your Phoenix server:
