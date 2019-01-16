@@ -17,7 +17,7 @@ export type Event = {}
 export enum Renderable {
   UI,
   Backdrop,
-  Scene
+  SceneObject // Sprite, prop, etc.
 }
 
 export enum RenderActionType {
@@ -31,6 +31,7 @@ export enum RenderActionType {
 export interface RenderAction {
   renderType: Renderable
   renderID: any
+  assetName: string
   actionType: RenderActionType
 }
 

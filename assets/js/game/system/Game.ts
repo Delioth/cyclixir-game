@@ -7,6 +7,7 @@ import { ScreenType } from '../constants/ScreenType'
 export interface GameSources {
   // The game should only be reacting to User Actions;
   DOM: DOMSource
+  pixi: Stream<PIXI.interaction.InteractionEvent>
   // or Time, provided there are uncompleted, time-based activities still pending
   time: TimeSource
 }

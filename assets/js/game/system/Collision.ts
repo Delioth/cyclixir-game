@@ -22,11 +22,11 @@ function lineLine(
 
   // if uA and uB are between 0-1, lines are colliding
   if (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1) {
-    // optionally, draw a circle where the lines meet - these statements aren't
-    let intersectionX: number =
-      line1point1.x + uA * (line1point2.x - line1point1.x)
-    let intersectionY: number =
-      line1point1.y + uA * (line1point2.y - line1point1.y)
+    // These two statements will give us the coordinates of the actual collision, if we want to use that
+    // let intersectionX: number =
+    //   line1point1.x + uA * (line1point2.x - line1point1.x)
+    // let intersectionY: number =
+    //   line1point1.y + uA * (line1point2.y - line1point1.y)
     // Draw or something
 
     return true

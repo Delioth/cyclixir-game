@@ -48,6 +48,7 @@ function app(sources: {
 
   const { renderActions: gameRenderable$, DOM: dom$ } = GameLoop({
     time: sources.time,
+    pixi: sources.pixi,
     DOM: sources.DOM
   })
 
@@ -63,15 +64,19 @@ function app(sources: {
   const checkToggle$ = checkClick$.map(
     (toggled: boolean): RenderAction => ({
       renderID: null,
+      assetName: 'fenix',
       renderType: Renderable.Backdrop,
-      actionType: RenderActionType.Move
+      actionType: toggled ? RenderActionType.Add : RenderActionType.Remove
     })
   )
 
-  // Apparently we can Add listeners to the pixi stream, but can't map?
-  sources.pixi.map(e => console.log("doesn't work", e))
-  // sources.pixi
-  //   .addListener({ next: e => console.log('works', e) })
+  // Since we don't currently add any listeners  to the resulting stream,
+  //  need to explicitly add a listener to the dummy stream.
+  sources.pixi
+    .map(e => {
+      return e
+    })
+    .addListener({})
 
   const sinks = {
     DOM: vnode$,
@@ -79,8 +84,8 @@ function app(sources: {
     time: xs.empty(),
     pixi: xs.merge(
       sources.time.animationFrames(),
-      checkToggle$,
-      gameRenderable$
+      checkToggle$
+      //gameRenderable$
     )
   }
 

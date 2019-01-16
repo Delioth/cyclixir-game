@@ -1,7 +1,7 @@
 import { adapt } from '@cycle/run/lib/adapt'
 import xs, { Stream } from 'xstream'
 import fromEvent from 'xstream/extra/fromEvent'
-import { RenderAction, RenderActionType } from '@src/StreamDefs'
+import { RenderAction, RenderActionType, Renderable } from '@src/StreamDefs'
 import { Frame } from '@cycle/time/lib/cjs/src/animation-frames'
 import * as PIXI from 'pixi.js'
 
@@ -19,11 +19,14 @@ const onElementReady = ($element): Promise<HTMLCanvasElement> =>
   })
 const canvas = () => document.querySelector('#pixi')
 
-function makePixiDriverAndView() {
+function makePixiDriver() {
   // We have to do this asynchronously so that we can actually hook things up to the virtual DOM (which lets the DOMDriver do things for us)
   let applicationPromise = onElementReady(canvas).then(
     c => new PIXI.Application({ view: c as HTMLCanvasElement })
   )
+
+  let resourcesLoaded = false
+  let idToSprite = {}
 
   function pixiDriver(sink$: Stream<RenderAction | Frame>) {
     // Hold onto our streams with a closure, and set up the listeners when we can
@@ -36,6 +39,10 @@ function makePixiDriverAndView() {
 
       app.stage.interactive = true
 
+      PIXI.loader
+        .add('fenix', 'images/phoenix.png')
+        .load(() => (resourcesLoaded = true))
+
       // Setup listenesrs for Render Actions - messages that tell us to do something
       sink$
         .filter(
@@ -47,11 +54,27 @@ function makePixiDriverAndView() {
             renderAction = renderAction as RenderAction
             console.log('Pixi receieved a message!', renderAction)
             // Do stuff with the RenderAction - add objects, render things, animate shit
-            if (renderAction.actionType === RenderActionType.Move) {
-              // TODO: real actions, not this background flipper
-              app.renderer.backgroundColor === 0xff00ff
-                ? (app.renderer.backgroundColor = 0x000000)
-                : (app.renderer.backgroundColor = 0xff00ff)
+            if (renderAction.actionType === RenderActionType.Add) {
+              // TODO: real actions
+              // Find the data for the thing we're adding
+              switch (renderAction.renderType) {
+                case Renderable.Backdrop:
+                  let backdrop = new PIXI.Sprite(
+                    PIXI.loader.resources[renderAction.assetName].texture
+                  )
+                  idToSprite[renderAction.renderID] = backdrop
+                  app.stage.addChild(backdrop)
+                  break
+              }
+              // Add the thing to the scene
+            } else if (renderAction.actionType === RenderActionType.Remove) {
+              switch (renderAction.renderType) {
+                case Renderable.Backdrop:
+                  if (idToSprite[renderAction.renderID]) {
+                    app.stage.removeChild(idToSprite[renderAction.renderID])
+                  }
+                  break
+              }
             }
           }
         })
@@ -68,6 +91,7 @@ function makePixiDriverAndView() {
               : undefined
           }
         })
+
       console.log('initialized pixi')
 
       // monkey patch in any event
@@ -88,19 +112,23 @@ function makePixiDriverAndView() {
         },
         stop: () => {}
       })
-      event$.addListener({ next: () => {} })
+      const ref = event$.addListener({ next: () => {} })
       // Give back the stream of events
       return adapt(event$)
     })
 
+    const interactionStream = xs.fromPromise(event$promise).flatten()
+    // interactionStream.addListener({ next: e => console.log(interactionStream) })
+    // console.log(interactionStream.debug())
+
     // Send interaction information so we can use that; flatten because fromPromise is a Stream<Stream<>>
-    return xs.fromPromise(event$promise).flatten()
+    return interactionStream
   }
 
   return pixiDriver
 }
 
-export default makePixiDriverAndView
+export default makePixiDriver
 
 // if (module.hot) {
 //   module.hot.decline()
