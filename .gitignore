@@ -29,3 +29,4 @@ npm-debug.log
 # ignore package-lock.json and mix.lock because that's install-specific
 *package-lock.json
 /mix.lock
+.vscode
